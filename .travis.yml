@@ -7,15 +7,18 @@ addons:
   apt:
     update: true
 before_install:
-  - git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/ -b "nougat-mr2-security-release" ~/toolchain
+  - |
+    git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/ \
+    # -b "nougat-mr2-security-release" 
+    --single-branch ~/toolchain
   - chmod -R a+x ~/toolchain/*
-  - git clone https://github.com/${TRAVIS_REPO_SLUG} -b "ALPS-MP-M0.MP9-V1.78.1_NB6797_6C_M" ~/kernel
+  - git clone https://github.com/${TRAVIS_REPO_SLUG} -b "ALPS-MP-M0.MP9-V1.78.1_NB6797_6C_M" --single-branch ~/kernel
 install: false || true
 script:
   - cd ~/kernel/
   - mkdir out
-  - make O=out clean
-  - make O=out mrproper
+  - make O=out clean || return 0
+  - make O=out mrproper || return 0
   - export CROSS_COMPILE=~/toolchain/bin/aarch64-linux-android-
   - export ARCH=arm64 
   - export KBUILD_BUILD_USER="fr3aky"
@@ -33,3 +36,9 @@ after_success:
       curl -F "file=@${F}" https://transfer.sh
       echo -e "\n"
     done
+branches:
+  only:
+    - 'ALPS-MP-M0.MP9-V1.78.1_NB6797_6C_M'
+  except:
+    - /^(?i:untagged)-.*$/
+    - /^v\d+\.\d+(\.\d+)?(-\S*)?$/
