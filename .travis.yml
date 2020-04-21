@@ -1,0 +1,35 @@
+os: linux
+dist: bionic
+language: generic
+git:
+  depth: 1
+addons:
+  apt:
+    update: true
+before_install:
+  - git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/ -b "nougat-mr2-security-release" ~/toolchain
+  - chmod -R a+x ~/toolchain/*
+  - git clone https://github.com/${TRAVIS_REPO_SLUG} -b "ALPS-MP-M0.MP9-V1.78.1_NB6797_6C_M" ~/kernel
+install: false || true
+script:
+  - cd ~/kernel/
+  - mkdir out
+  - make O=out clean
+  - make O=out mrproper
+  - export CROSS_COMPILE=~/toolchain/bin/aarch64-linux-android-
+  - export ARCH=arm64 
+  - export KBUILD_BUILD_USER="fr3aky"
+  - export KBUILD_BUILD_HOST="Phantom_Zone"
+  - export ARCH_MTK_PLATFORM=mt6797
+  - make O=out ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE k15ta_a_defconfig
+  - make O=out ARCH=$ARCH CROSS_COMPILE=$CROSS_COMPILE -j$(nproc --all)
+after_success:
+  - cd ~/kernel/
+  - ls -lAR out/
+  - ZIMAGE=arch/arm64/boot/zIma*
+  - la -lAR arch/arm64/boot/
+  - |
+    for f in ${ZIMAGE}; do
+      curl -F "file=@${F}" https://transfer.sh
+      echo -e "\n"
+    done
