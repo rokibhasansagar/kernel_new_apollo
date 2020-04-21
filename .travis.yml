@@ -7,10 +7,8 @@ addons:
   apt:
     update: true
 before_install:
-  - |
-    git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/ \
-    # -b "nougat-mr2-security-release" 
-    --single-branch ~/toolchain
+  - git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/ --single-branch ~/toolchain
+  # -b "nougat-mr2-security-release"
   - chmod -R a+x ~/toolchain/*
   - git clone https://github.com/${TRAVIS_REPO_SLUG} -b "ALPS-MP-M0.MP9-V1.78.1_NB6797_6C_M" --single-branch ~/kernel
 install: false || true
